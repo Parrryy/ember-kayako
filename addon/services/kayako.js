@@ -29,7 +29,12 @@ export default Ember.Service.extend({
   },
 
   identify({ name, email }) {
-    return window.kayako.identify(name, email);
+    return new RSVP.Promise(resolve => {
+      window.kayako.ready(() => {
+        window.kayako.identify(name, email);
+        resolve();
+      })
+    });
   },
 
   isInChat() {
