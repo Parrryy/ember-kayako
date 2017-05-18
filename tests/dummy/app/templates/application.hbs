@@ -5,13 +5,19 @@
 {{outlet}}
 
 <div>
-  isVisible: {{kayako.isVisible}}
-  <button onclick={{action "show"}}>Show</button>
-  <button onclick={{action "hide"}}>Hide</button>
+  isReady: {{kayako.isReady}}
 </div>
 
-<div>
-  isMaximized: {{kayako.isMaximized}}
-  <button onclick={{action "maximize"}}>Maximize</button>
-  <button onclick={{action "minimize"}}>Minimize</button>
-</div>
+{{#if kayako.isReady}}
+  <div>
+    isVisible: {{kayako.isVisible}}
+    <button onclick={{action "show"}}>Show</button>
+    <button onclick={{action "hide"}}>Hide</button>
+  </div>
+
+  <div>
+    isMaximized: {{kayako.isMaximized}}
+    <button onclick={{action "maximize"}}>Maximize</button>
+    <button onclick={{action "minimize"}}>Minimize</button>
+  </div>
+{{/if}}

@@ -2,6 +2,7 @@ import Ember from 'ember';
 import RSVP from 'rsvp';
 
 export default Ember.Service.extend({
+  isReady: false,
   isVisible: true,
   isMaximized: false,
   hasIdentified: false,
@@ -11,6 +12,8 @@ export default Ember.Service.extend({
     const kayako = window.kayako;
 
     kayako.ready(() => {
+      this.set('isReady', true);
+
       kayako.setLogLevel('trace');
 
       kayako.on('chat_window_maximized', () => this.set('isMaximized', true));
