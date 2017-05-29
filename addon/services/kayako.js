@@ -1,11 +1,12 @@
 import Ember from 'ember';
 import RSVP from 'rsvp';
 
-export default Ember.Service.extend({
+export default Ember.Service.extend(Ember.Evented, {
   isReady: false,
-  isVisible: true,
-  isMaximized: false,
+  visibility: null,
   hasIdentified: false,
+  numUnreadMessages: 0,
+  soundsEnabled: true,
 
   init() {
     this._super(...arguments);
@@ -13,19 +14,51 @@ export default Ember.Service.extend({
 
     kayako.ready(() => {
       this.set('isReady', true);
+      this.set('visibility', kayako.visibility());
 
-      kayako.setLogLevel('trace');
+      kayako.on('chat_window_maximized', () => {
+        this.set('visibility', kayako.visibility());
+        this.trigger('chat_window_maximized');
+      });
 
-      kayako.on('chat_window_maximized', () => this.set('isMaximized', true));
-      kayako.on('chat_window_minimized', () => this.set('isMaximized', false));
+      kayako.on('chat_window_minimized', () => {
+        this.set('visibility', kayako.visibility());
+        this.trigger('chat_window_minimized');
+      });
 
-      kayako.on('chat_window_hidden', () => this.set('isVisible', false));
-      kayako.on('chat_window_shown', () => this.set('isVisible', true));
+      kayako.on('chat_window_hidden', () => {
+        this.set('visibility', kayako.visibility());
+        this.trigger('chat_window_hidden');
+      });
 
-      kayako.on('identified', () => this.set('hasIdentified', true));
+      kayako.on('chat_window_shown', () => {
+        this.set('visibility', kayako.visibility());
+        this.trigger('chat_window_shown');
+      });
 
-      // TODO - also hook into chat events etc, maybe with Ember.Evented?
+      kayako.on('identified', () => {
+        this.set('hasIdentified', true);
+        this.trigger('identified');
+      });
+
+      kayako.on('unread_messages_count_changed', (count) => {
+        this.set('numUnreadMessages', count);
+        this.trigger('unread_messages_count_changed', count);
+      });
+
+      kayako.on('chat_state_changed', (conversation, state) => this.trigger('chat_state_changed', conversation, state));
+      kayako.on('chat_started',       (conversation)        => this.trigger('chat_started', conversation));
+      kayako.on('chat_ended',         (conversation)        => this.trigger('chat_ended', conversation));
+
+      this.onReady(kayako);
     });
+  },
+
+  onReady(/* kayako */) {
+    // override this in your app
+    // kayako.setLogLevel('trace');
+    // kayako.hideLauncher = true
+    // etc...
   },
 
   identify({ name, email }) {
@@ -72,10 +105,12 @@ export default Ember.Service.extend({
   },
 
   enableSounds() {
+    this.set('soundsEnabled', true);
     return window.kayako.enableSounds();
   },
 
   disableSounds() {
+    this.set('soundsEnabled', false);
     return window.kayako.disableSounds();
   }
 });
