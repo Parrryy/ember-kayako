@@ -10,48 +10,57 @@ export default Ember.Service.extend(Ember.Evented, {
 
   init() {
     this._super(...arguments);
+
+    // Currently `ready` doesn't run if already ready
+    // Remove this logic when that's fixed
+    if (window.kayako.hide) {
+      this._onReady();
+    } else {
+      window.kayako.ready(() => this._onReady());
+    }
+  },
+
+  _onReady() {
     const kayako = window.kayako;
 
-    kayako.ready(() => {
-      this.set('isReady', true);
+    this.set('isReady', true);
+    this.set('visibility', kayako.visibility());
+
+    kayako.on('chat_window_maximized', () => {
       this.set('visibility', kayako.visibility());
-
-      kayako.on('chat_window_maximized', () => {
-        this.set('visibility', kayako.visibility());
-        this.trigger('chat_window_maximized');
-      });
-
-      kayako.on('chat_window_minimized', () => {
-        this.set('visibility', kayako.visibility());
-        this.trigger('chat_window_minimized');
-      });
-
-      kayako.on('chat_window_hidden', () => {
-        this.set('visibility', kayako.visibility());
-        this.trigger('chat_window_hidden');
-      });
-
-      kayako.on('chat_window_shown', () => {
-        this.set('visibility', kayako.visibility());
-        this.trigger('chat_window_shown');
-      });
-
-      kayako.on('identified', () => {
-        this.set('hasIdentified', true);
-        this.trigger('identified');
-      });
-
-      kayako.on('unread_messages_count_changed', (count) => {
-        this.set('numUnreadMessages', count);
-        this.trigger('unread_messages_count_changed', count);
-      });
-
-      kayako.on('chat_state_changed', (conversation, state) => this.trigger('chat_state_changed', conversation, state));
-      kayako.on('chat_started',       (conversation)        => this.trigger('chat_started', conversation));
-      kayako.on('chat_ended',         (conversation)        => this.trigger('chat_ended', conversation));
-
-      this.onReady(kayako);
+      this.trigger('chat_window_maximized');
     });
+
+    kayako.on('chat_window_minimized', () => {
+      this.set('visibility', kayako.visibility());
+      this.trigger('chat_window_minimized');
+    });
+
+    kayako.on('chat_window_hidden', () => {
+      this.set('visibility', kayako.visibility());
+      this.trigger('chat_window_hidden');
+    });
+
+    kayako.on('chat_window_shown', () => {
+      this.set('visibility', kayako.visibility());
+      this.trigger('chat_window_shown');
+    });
+
+    kayako.on('identified', () => {
+      this.set('hasIdentified', true);
+      this.trigger('identified');
+    });
+
+    kayako.on('unread_messages_count_changed', (count) => {
+      this.set('numUnreadMessages', count);
+      this.trigger('unread_messages_count_changed', count);
+    });
+
+    kayako.on('chat_state_changed', (conversation, state) => this.trigger('chat_state_changed', conversation, state));
+    kayako.on('chat_started',       (conversation)        => this.trigger('chat_started', conversation));
+    kayako.on('chat_ended',         (conversation)        => this.trigger('chat_ended', conversation));
+
+    this.onReady(kayako);
   },
 
   onReady(/* kayako */) {
