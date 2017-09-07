@@ -63,6 +63,10 @@ export default Ember.Service.extend(Ember.Evented, {
     // etc...
   },
 
+  onReady(callback) {
+    window.kayako.ready(callback);
+  },
+
   identify({ name, email }) {
     return new RSVP.Promise(resolve => {
       window.kayako.ready(() => {
