@@ -10,14 +10,7 @@ export default Ember.Service.extend(Ember.Evented, {
 
   init() {
     this._super(...arguments);
-
-    // Currently `ready` doesn't run if already ready
-    // Remove this logic when that's fixed
-    if (window.kayako.hide) {
-      this._onReady();
-    } else {
-      window.kayako.ready(() => this._onReady());
-    }
+    window.kayako.ready(() => this._onReady());
   },
 
   _onReady() {
