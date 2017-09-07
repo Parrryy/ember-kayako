@@ -53,10 +53,10 @@ export default Ember.Service.extend(Ember.Evented, {
     kayako.on('chat_started',       (conversation)        => this.trigger('chat_started', conversation));
     kayako.on('chat_ended',         (conversation)        => this.trigger('chat_ended', conversation));
 
-    this.onReady(kayako);
+    this.setup(kayako);
   },
 
-  onReady(/* kayako */) {
+  setup(/* kayako */) {
     // override this in your app
     // kayako.setLogLevel('trace');
     // kayako.hideLauncher = true
