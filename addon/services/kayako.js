@@ -73,14 +73,17 @@ export default Ember.Service.extend(Ember.Evented, {
   },
 
   isInChat() {
+    this._ensureReady();
     return window.kayako.isInChat();
   },
 
   currentChat() {
+    this._ensureReady();
     return window.kayako.getCurrentChat();
   },
 
   agentsAvailable(department) {
+    this._ensureReady();
     return new RSVP.Promise(resolve => {
       if (department) {
         window.kayako.agentsAvailable(department, resolve);
@@ -91,28 +94,40 @@ export default Ember.Service.extend(Ember.Evented, {
   },
 
   show() {
+    this._ensureReady();
     return window.kayako.show();
   },
 
   hide() {
+    this._ensureReady();
     return window.kayako.hide();
   },
 
   maximize() {
+    this._ensureReady();
     return window.kayako.maximize();
   },
 
   minimize() {
+    this._ensureReady();
     return window.kayako.minimize();
   },
 
   enableSounds() {
+    this._ensureReady();
     this.set('soundsEnabled', true);
     return window.kayako.enableSounds();
   },
 
   disableSounds() {
+    this._ensureReady();
     this.set('soundsEnabled', false);
     return window.kayako.disableSounds();
+  },
+
+  _ensureReady() {
+    if (!this.get('isReady')) {
+      throw new Error('Kayako messenger is not yet ready. Ensure messenger has loaded before calling it.');
+    }
   }
 });
